@@ -1,11 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Share2, Trophy, User } from "lucide-react";
+import { ArrowLeft, Share2, Trophy, User, Search, Plus, X } from "lucide-react";
 import type { Screen } from "../components/PhoneMockup";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 
 interface LeaderboardScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -14,9 +15,11 @@ interface LeaderboardScreenProps {
 export default function LeaderboardScreen({
   onNavigate,
 }: LeaderboardScreenProps) {
-
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const friends = [
     { id: "1", name: "Daisy", avatar: "D" },
     { id: "2", name: "Michael", avatar: "M" },
@@ -25,9 +28,22 @@ export default function LeaderboardScreen({
     { id: "5", name: "Emma", avatar: "E" },
   ];
 
+  const searchResults = [
+    { id: "6", name: "Alex Johnson", avatar: "A", mutualFriends: 3 },
+    { id: "7", name: "Taylor Smith", avatar: "T", mutualFriends: 1 },
+    { id: "8", name: "Jordan Lee", avatar: "J", mutualFriends: 2 },
+    { id: "9", name: "Casey Brown", avatar: "C", mutualFriends: 0 },
+  ].filter(
+    (user) =>
+      searchQuery === "" ||
+      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const toggleFriend = (id: string) => {
     setSelectedFriends((prev) =>
-      prev.includes(id) ? prev.filter((friendId) => friendId !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((friendId) => friendId !== id)
+        : [...prev, id]
     );
   };
 
@@ -38,7 +54,11 @@ export default function LeaderboardScreen({
           <ArrowLeft size={20} />
         </Button>
         <div className="flex-1 text-center font-bold">Leaderboard</div>
-        <Button variant="ghost" size="icon" onClick={() => setShowShareModal(true)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowShareModal(true)}
+        >
           <Share2 size={20} />
         </Button>
       </div>
@@ -73,17 +93,19 @@ export default function LeaderboardScreen({
                       isYou ? "bg-yellow-100 font-semibold" : ""
                     }`}
                   >
-        
                     <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">
                       {id}
                     </div>
 
                     <div className="text-xs truncate ml-2">{name}</div>
 
-             
                     <div className="flex items-center gap-2 text-xs justify-end">
                       <span>{score}</span>
-                      <Button variant="ghost" size="sm" onClick={() => setShowShareModal(true)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowShareModal(true)}
+                      >
                         <Share2 size={14} />
                       </Button>
                     </div>
@@ -122,7 +144,11 @@ export default function LeaderboardScreen({
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <span>{mistakes}</span>
-                      <Button variant="ghost" size="sm" onClick={() => setShowShareModal(true)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowShareModal(true)}
+                      >
                         <Share2 size={14} />
                       </Button>
                     </div>
@@ -226,10 +252,18 @@ export default function LeaderboardScreen({
       </div>
 
       <div className="border-t flex justify-around p-2">
-        <Button variant="ghost" size="sm" onClick={() => onNavigate("home")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowAddFriendModal(true)}
+        >
           Add Friends
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => setShowShareModal(true)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowShareModal(true)}
+        >
           Share Results
         </Button>
       </div>
@@ -253,7 +287,10 @@ export default function LeaderboardScreen({
                 <h4 className="text-xs font-medium mb-1">Share with friends</h4>
                 <div className="max-h-[120px] overflow-y-auto space-y-2 pr-1">
                   {friends.map((friend) => (
-                    <div key={friend.id} className="flex items-center space-x-2">
+                    <div
+                      key={friend.id}
+                      className="flex items-center space-x-2"
+                    >
                       <Checkbox
                         id={`friend-${friend.id}`}
                         checked={selectedFriends.includes(friend.id)}
@@ -290,7 +327,88 @@ export default function LeaderboardScreen({
           </div>
         </div>
       )}
+      {showAddFriendModal && (
+        <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-[250px] max-h-[90%] overflow-auto">
+            <div className="p-3 border-b flex items-center justify-between">
+              <div className="w-4"></div>
+              <h3 className="font-semibold">Add Friends</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+                onClick={() => setShowAddFriendModal(false)}
+              >
+                ×
+              </Button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search for friends"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 text-sm"
+                />
+              </div>
+
+              <div className="pt-1">
+                <h4 className="text-xs font-medium mb-2">Search Results</h4>
+                {searchResults.length > 0 ? (
+                  <div className="max-h-[200px] overflow-y-auto space-y-2 pr-1">
+                    {searchResults.map((user) => (
+                      <div
+                        key={user.id}
+                        className="flex items-center justify-between py-2 border-b border-gray-100"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+                            {user.avatar}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">
+                              {user.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {user.mutualFriends > 0
+                                ? `${user.mutualFriends} mutual friend${
+                                    user.mutualFriends > 1 ? "s" : ""
+                                  }`
+                                : "No mutual friends"}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-8 p-0"
+                        >
+                          <Plus size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-sm text-gray-500">
+                    {searchQuery
+                      ? "No users found matching your search"
+                      : "Type to search for friends"}
+                  </div>
+                )}
+              </div>
+
+              <Button
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => setShowAddFriendModal(false)}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
