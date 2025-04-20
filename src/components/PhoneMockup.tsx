@@ -1,19 +1,18 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import AppScreen from "./AppScreen";
-import LoginScreen from "../screens/LoginScreen";
-import HomeScreen from "../screens/HomeScreen";
-import GameScreen from "../screens/GameScreen";
-import ConnectionsScreen from "../screens/ConnectionsScreen";
-import LeaderboardScreen from "../screens/LeaderboardScreen";
-import InsightsScreen from "../screens/InsightsScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import React from "react";
-import SignupScreen from "../screens/SignUp";
-import GameResultsScreen from "../screens/GameResultsScreen";
-import ConnectionsResultsScreen from "../screens/ConnectionsResultsScreen";
-import GameSelectScreen from "../screens/GameSelectScreen";
+import { useState } from "react"
+import AppScreen from "./AppScreen"
+import LoginScreen from "../screens/LoginScreen"
+import HomeScreen from "../screens/HomeScreen"
+import GameScreen from "../screens/GameScreen"
+import ConnectionsScreen from "../screens/ConnectionsScreen"
+import LeaderboardScreen from "../screens/LeaderboardScreen"
+import InsightsScreen from "../screens/InsightsScreen"
+import ProfileScreen from "../screens/ProfileScreen"
+import SignupScreen from "../screens/SignUp"
+import GameResultsScreen from "../screens/GameResultsScreen"
+import ConnectionsResultsScreen from "../screens/ConnectionsResultsScreen"
+import GameSelectScreen from "../screens/GameSelectScreen"
 
 export type Screen =
   | "login"
@@ -26,13 +25,14 @@ export type Screen =
   | "profile"
   | "results"
   | "connections-results"
-  | "game-select";
+  | "game-select"
 
 export default function PhoneMockup() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("login");
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [guesses, setGuesses] = useState<string[]>(["STARE", "PLANK", "KNOLL"]);
-  const [gameState, setGameState] = useState<"won" | "lost">("won");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("login")
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [guesses, setGuesses] = useState<string[]>(["STARE", "PLANK", "KNOLL"])
+  const [gameState, setGameState] = useState<"won" | "lost">("won")
+  const [selectedMode, setSelectedMode] = useState<"daily" | "weekly" | "custom" | "friend" | null>(null)
 
   const mockStats = {
     played: 60,
@@ -40,7 +40,7 @@ export default function PhoneMockup() {
     currentStreak: 0,
     maxStreak: 5,
     guessDistribution: [1, 0, 5, 9, 22, 18],
-  };
+  }
 
   const mockConnectionsGroups = [
     {
@@ -63,16 +63,22 @@ export default function PhoneMockup() {
       name: "Fruits",
       words: ["APPLE", "ORANGE", "BANANA", "GRAPE"],
     },
-  ];
+  ]
 
   const handleLogin = (screen?: Screen) => {
-    setLoggedIn(true);
-    setCurrentScreen(screen || "home");
-  };
+    setLoggedIn(true)
+    setCurrentScreen(screen || "home")
+  }
 
-  const handleNavigate = (screen: Screen) => {
-    setCurrentScreen(screen);
-  };
+  const handleNavigate = (
+    screen: Screen,
+    params?: { selectedMode?: "daily" | "weekly" | "custom" | "friend" | null},
+  ) => {
+    setCurrentScreen(screen)
+    if (params?.selectedMode) {
+      setSelectedMode(params.selectedMode)
+    }
+  }
 
   return (
     <div className="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-xl">
@@ -84,33 +90,13 @@ export default function PhoneMockup() {
         <div className="h-full overflow-y-auto hide-scrollbar">
           <AppScreen>
             {currentScreen === "login" && <LoginScreen onLogin={handleLogin} />}
-            {currentScreen === "signup" && (
-              <SignupScreen
-                onNavigate={handleNavigate}
-                onSignup={handleLogin}
-              />
-            )}
-            {currentScreen === "home" && (
-              <HomeScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "game" && (
-              <GameScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "connections" && (
-              <ConnectionsScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "leaderboard" && (
-              <LeaderboardScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "insights" && (
-              <InsightsScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "profile" && (
-              <ProfileScreen onNavigate={handleNavigate} />
-            )}
-            {currentScreen === "results" && (
-              <GameScreen onNavigate={handleNavigate} />
-            )}
+            {currentScreen === "signup" && <SignupScreen onNavigate={handleNavigate} onSignup={handleLogin} />}
+            {currentScreen === "home" && <HomeScreen onNavigate={handleNavigate} />}
+            {currentScreen === "game" && <GameScreen onNavigate={handleNavigate} selectedMode={selectedMode} />}
+            {currentScreen === "connections" && <ConnectionsScreen onNavigate={handleNavigate} />}
+            {currentScreen === "leaderboard" && <LeaderboardScreen onNavigate={handleNavigate} />}
+            {currentScreen === "insights" && <InsightsScreen onNavigate={handleNavigate} />}
+            {currentScreen === "profile" && <ProfileScreen onNavigate={handleNavigate} />}
             {currentScreen === "results" && (
               <GameResultsScreen
                 onNavigate={handleNavigate}
@@ -135,12 +121,10 @@ export default function PhoneMockup() {
                 }}
               />
             )}
-            {currentScreen === "game-select" && (
-              <GameSelectScreen onNavigate={handleNavigate} />
-            )}
+            {currentScreen === "game-select" && <GameSelectScreen onNavigate={handleNavigate} />}
           </AppScreen>
         </div>
       </div>
     </div>
-  );
+  )
 }

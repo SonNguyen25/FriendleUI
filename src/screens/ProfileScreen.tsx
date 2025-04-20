@@ -1,16 +1,22 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, LogOut, Settings } from "lucide-react"
+import { ArrowLeft, LogOut, Settings, X } from "lucide-react"
 import type { Screen } from "../components/PhoneMockup"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 interface ProfileScreenProps {
   onNavigate: (screen: Screen) => void
 }
 
 export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 border-b flex items-center">
@@ -18,9 +24,10 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
           <ArrowLeft size={20} />
         </Button>
         <div className="flex-1 text-center font-bold">Profile</div>
-        <Button variant="ghost" size="icon">
+        {/* <Button variant="ghost" size="icon">
           <Settings size={20} />
-        </Button>
+        </Button> */}
+        <div className="w-9 h-6" />
       </div>
 
       <div className="flex-1 p-4">
@@ -46,7 +53,7 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
                 <Label htmlFor="share-results">Auto Share Results</Label>
                 <Switch id="share-results" />
               </div>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={() => setShowPasswordModal(true)}>
                 Change Password
               </Button>
             </div>
@@ -88,13 +95,60 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
             </div>
           </div>
 
-          <Button onClick={() => onNavigate("login")} variant="outline" className="w-full flex items-center justify-center gap-2">
+          <Button
+            onClick={() => onNavigate("login")}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2"
+          >
             <LogOut size={16} />
             <span>Log Out</span>
           </Button>
         </div>
       </div>
+
+      {showPasswordModal && (
+        <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-[250px] max-h-[90%] overflow-auto">
+            <div className="p-3 border-b flex items-center justify-between">
+              <div className="w-4"></div>
+              <h3 className="font-semibold">Change Password</h3>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setShowPasswordModal(false)}>
+                <X size={16} />
+              </Button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="old-password">Current Password</Label>
+                <Input
+                  id="old-password"
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="Enter current password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setShowPasswordModal(false)}>
+                  Cancel
+                </Button>
+                <Button className="flex-1" onClick={() => setShowPasswordModal(false)}>
+                  Change
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

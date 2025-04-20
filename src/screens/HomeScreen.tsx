@@ -9,8 +9,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
 
 interface HomeScreenProps {
-  onNavigate: (screen: Screen) => void
+  onNavigate: (screen: Screen, params?: { selectedMode: "daily" | "weekly" | "custom" | "friend" | null }) => void
 }
+
 
 export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   const [gameType, setGameType] = useState<"wordle" | "connections">("wordle")
@@ -62,7 +63,7 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
           <Button
             variant="outline"
             className="h-24 flex flex-col items-center justify-center"
-            onClick={() => onNavigate("game")}
+            onClick={() => onNavigate("game", {selectedMode: "daily"})}
           >
             <div className="text-lg mb-1">Wordle</div>
             <div className="text-xs text-gray-500">Daily Challenge</div>

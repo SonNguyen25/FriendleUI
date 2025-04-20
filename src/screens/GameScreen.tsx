@@ -8,14 +8,16 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface GameScreenProps {
   onNavigate: (screen: Screen) => void
+  selectedMode?: "daily" | "weekly" | "custom" | "friend" | null
 }
 
-export default function GameScreen({ onNavigate }: GameScreenProps) {
+export default function GameScreen({ onNavigate, selectedMode }: GameScreenProps) {
   const [currentGuess, setCurrentGuess] = useState("")
   const [guesses, setGuesses] = useState<string[]>([])
   const [gameState, setGameState] = useState<"playing" | "won" | "lost">("playing")
   const [showAiHelp, setShowAiHelp] = useState(false)
   const [showHint, setShowHint] = useState(false)
+  const [showInstructions, setShowInstructions] = useState(true)
 
   const targetWord = "KNOLL"
   const maxGuesses = 6
@@ -147,7 +149,7 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-auto relative">
+    <div className="flex flex-col h-full relative">
       <div className="p-3 border-b flex items-center">
         <Button variant="ghost" size="icon" onClick={() => onNavigate("home")}>
           <ArrowLeft size={20} />
@@ -159,7 +161,7 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
       </div>
 
       <div className="flex-1 p-4 flex flex-col">
-        <Tabs defaultValue="daily" className="mb-4">
+        <Tabs defaultValue={selectedMode || "daily"} className="mb-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="daily">Daily</TabsTrigger>
             <TabsTrigger value="weekly">Weekly</TabsTrigger>
@@ -219,7 +221,7 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
           </div>
 
           <div className="flex justify-center gap-[2px]">
-            <div className="w-[12px] sm:w-[16px]" />
+            <div className="w-[16px]" />
             {["A", "S", "D", "F", "G", "H", "J", "K", "L"].map((key) => (
               <button
                 key={key}
@@ -229,14 +231,15 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
                 {key}
               </button>
             ))}
-            <div className="w-[12px] sm:w-[16px]" />
+            <div className="w-[16px]" />
           </div>
+
           <div className="flex justify-center gap-[2px]">
             <button
-              onClick={() => handleKeyPress("ENTER")}
-              className="uppercase flex items-center justify-center bg-gray-300 dark:bg-gray-600 text-black dark:text-white font-semibold text-[10px] rounded px-1 py-2 w-[48px] sm:w-[60px] h-[44px] transition-colors"
+              onClick={() => handleKeyPress("DELETE")}
+              className="flex items-center justify-center bg-gray-300 dark:bg-gray-600 text-black dark:text-white font-semibold text-[10px] rounded px-1 py-2 w-[48px] sm:w-[60px] h-[44px] transition-colors"
             >
-              Enter
+              ←
             </button>
             {["Z", "X", "C", "V", "B", "N", "M"].map((key) => (
               <button
@@ -248,16 +251,49 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
               </button>
             ))}
             <button
-              onClick={() => handleKeyPress("DELETE")}
-              className="flex items-center justify-center bg-gray-300 dark:bg-gray-600 text-black dark:text-white font-semibold text-[10px] rounded px-1 py-2 w-[48px] sm:w-[60px] h-[44px] transition-colors"
+              onClick={() => handleKeyPress("ENTER")}
+              className="uppercase flex items-center justify-center bg-gray-300 dark:bg-gray-600 text-black dark:text-white font-semibold text-[10px] rounded px-1 py-2 w-[48px] sm:w-[60px] h-[44px] transition-colors"
             >
-              ←
+              Enter
             </button>
           </div>
         </div>
       </div>
 
-      
+      {showInstructions && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-[300px] p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold">How to Play Wordle</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowInstructions(false)} className="h-6 w-6">
+                <X size={16} />
+              </Button>
+            </div>
+
+            <div className="text-xs space-y-2 mb-3">
+              <p>Guess the WORDLE in 6 tries.</p>
+              <p>Each guess must be a valid 5-letter word.</p>
+              <p>After each guess, the color of the tiles will change to show how close your guess was to the word.</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-6 h-6 bg-green-500 flex items-center justify-center text-white font-bold">R</div>
+                <span>The letter R is in the word and in the correct spot.</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-yellow-500 flex items-center justify-center text-white font-bold">I</div>
+                <span>The letter I is in the word but in the wrong spot.</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gray-400 flex items-center justify-center text-white font-bold">U</div>
+                <span>The letter U is not in the word in any spot.</span>
+              </div>
+            </div>
+
+            <Button onClick={() => setShowInstructions(false)} className="w-full">
+              Start Playing
+            </Button>
+          </div>
+        </div>
+      )}
       {showAiHelp && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-[250px] p-4">
@@ -295,4 +331,3 @@ export default function GameScreen({ onNavigate }: GameScreenProps) {
     </div>
   )
 }
-

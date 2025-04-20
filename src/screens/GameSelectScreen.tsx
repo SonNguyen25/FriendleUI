@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, X } from "lucide-react"
+import { ArrowLeft, X, Loader2, Check } from "lucide-react"
 import type { Screen } from "../components/PhoneMockup"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 
 interface GameSelectScreenProps {
-  onNavigate: (screen: Screen) => void
+  onNavigate:(screen: Screen, params?: { selectedMode: "daily" | "weekly" | "custom" | "friend" | null }) => void
 }
 
 export default function GameSelectScreen({ onNavigate }: GameSelectScreenProps) {
@@ -16,18 +18,31 @@ export default function GameSelectScreen({ onNavigate }: GameSelectScreenProps) 
   const [selectedMode, setSelectedMode] = useState<"daily" | "weekly" | "custom" | "friend" | null>(null)
   const [aiTheme, setAiTheme] = useState("")
   const [showThemeSuggestions, setShowThemeSuggestions] = useState(false)
+  const [selectedFriends, setSelectedFriends] = useState<string[]>([])
+  const [showInvitePopup, setShowInvitePopup] = useState(false)
+  const [inviteAccepted, setInviteAccepted] = useState<boolean | null>(null)
+
+  // Mock friends list
+  const friends = [
+    { id: "1", name: "Alex Johnson" },
+    { id: "2", name: "Taylor Smith" },
+    { id: "3", name: "Jordan Lee" },
+    { id: "4", name: "Casey Morgan" },
+    { id: "5", name: "Riley Parker" },
+  ]
 
   const handleGameSelect = (game: "wordle" | "connections") => {
     setSelectedGame(game)
     setSelectedMode(null)
+    setSelectedFriends([])
   }
 
   const handleModeSelect = (mode: "daily" | "weekly" | "custom" | "friend") => {
     setSelectedMode(mode)
 
-    if (mode !== "custom") {
+    if (mode !== "custom" && mode !== "friend") {
       if (selectedGame === "wordle") {
-        onNavigate("game")
+        onNavigate("game", { selectedMode: mode })
       } else {
         onNavigate("connections")
       }
@@ -36,10 +51,33 @@ export default function GameSelectScreen({ onNavigate }: GameSelectScreenProps) 
 
   const handleStartGame = () => {
     if (selectedGame === "wordle") {
-      onNavigate("game")
+      onNavigate("game", { selectedMode: selectedMode })
     } else {
       onNavigate("connections")
     }
+  }
+
+  const handleFriendToggle = (friendId: string) => {
+    setSelectedFriends((prev) => (prev.includes(friendId) ? prev.filter((id) => id !== friendId) : [...prev, friendId]))
+  }
+
+  const handleSendInvite = () => {
+    setShowInvitePopup(true)
+
+    // Simulate waiting for response
+    setTimeout(() => {
+      setInviteAccepted(true)
+
+      // Navigate to game after "acceptance"
+      setTimeout(() => {
+        setShowInvitePopup(false)
+        if (selectedGame === "wordle") {
+          onNavigate("game", { selectedMode: selectedMode })
+        } else {
+          onNavigate("connections")
+        }
+      }, 1500)
+    }, 3000)
   }
 
   const themeSuggestions = ["Animals", "Movies", "Sports", "Food", "Geography", "Science", "History", "Music"]
@@ -151,9 +189,35 @@ export default function GameSelectScreen({ onNavigate }: GameSelectScreenProps) 
           </div>
         )}
 
+        {selectedMode === "friend" && (
+          <div className="mt-2 mb-4">
+            <label className="block text-sm font-medium mb-2">Select friends to play with</label>
+            <div className="border rounded-md p-3 max-h-[200px] overflow-y-auto space-y-2">
+              {friends.map((friend) => (
+                <div key={friend.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`friend-${friend.id}`}
+                    checked={selectedFriends.includes(friend.id)}
+                    onCheckedChange={() => handleFriendToggle(friend.id)}
+                  />
+                  <Label htmlFor={`friend-${friend.id}`} className="cursor-pointer">
+                    {friend.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {selectedMode === "custom" && (
           <Button className="mt-2" disabled={!aiTheme.trim()} onClick={handleStartGame}>
             Start Game
+          </Button>
+        )}
+
+        {selectedMode === "friend" && (
+          <Button className="mt-2" disabled={selectedFriends.length === 0} onClick={handleSendInvite}>
+            Send Invite
           </Button>
         )}
       </div>
@@ -186,7 +250,38 @@ export default function GameSelectScreen({ onNavigate }: GameSelectScreenProps) 
           </div>
         </div>
       )}
+
+      {/* Friend Invite Loading Popup */}
+      {showInvitePopup && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-[280px] p-5">
+            <div className="flex flex-col items-center text-center">
+              <h3 className="font-semibold mb-3">
+                {inviteAccepted === null ? "Waiting for response" : "Invite accepted!"}
+              </h3>
+
+              {inviteAccepted === null ? (
+                <>
+                  <Loader2 className="h-10 w-10 text-gray-500 animate-spin mb-3" />
+                  <p className="text-sm text-gray-600">
+                    Waiting for {selectedFriends.length > 1 ? "friends" : "friend"} to accept your invite...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                    <Check className="h-6 w-6 text-green-600" />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {selectedFriends.length > 1 ? "Friends have" : "Friend has"} accepted your invite!
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">Starting game...</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

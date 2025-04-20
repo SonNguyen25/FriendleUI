@@ -16,6 +16,7 @@ export default function ConnectionsScreen({ onNavigate }: ConnectionsScreenProps
   const [mistakes, setMistakes] = useState(0)
   const [showAiHelp, setShowAiHelp] = useState(false)
   const [showDefinition, setShowDefinition] = useState(false)
+  const [showInstructions, setShowInstructions] = useState(true)
 
   const words = [
     "LADLE",
@@ -138,10 +139,51 @@ export default function ConnectionsScreen({ onNavigate }: ConnectionsScreenProps
             Simulate Mistake
           </Button>
         </div>
-
+        &emsp;
+        &emsp;
         <div className="text-sm text-gray-500 text-center mt-2">Select 4 words that share a common theme</div>
       </div>
 
+      {showInstructions && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-[300px] p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold">How to Play Connections</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowInstructions(false)} className="h-6 w-6">
+                <X size={16} />
+              </Button>
+            </div>
+
+            <div className="text-xs space-y-2 mb-3">
+              <p>Find groups of four words that share a common theme.</p>
+              <p>Select four words and tap 'Submit' to check if they belong together.</p>
+              <p>Find all four groups to win the game!</p>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <span>Easy: Common categories</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span>Medium: Broader connections</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-400"></div>
+                  <span>Hard: Tricky themes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-purple-400"></div>
+                  <span>Very Hard: Challenging connections</span>
+                </div>
+              </div>
+            </div>
+
+            <Button onClick={() => setShowInstructions(false)} className="w-full">
+              Start Playing
+            </Button>
+          </div>
+        </div>
+      )}
       
       {showAiHelp && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
